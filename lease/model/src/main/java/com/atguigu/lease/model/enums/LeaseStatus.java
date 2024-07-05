@@ -12,6 +12,9 @@ public enum LeaseStatus implements BaseEnum
     EXPIRED(4, "已到期"),
     WITHDRAWING(5, "退租待确认"),
     WITHDRAWN(6, "已退租"),
+    /**
+     * 更新
+     */
     RENEWING(7, "续约待确认");
 
     @EnumValue

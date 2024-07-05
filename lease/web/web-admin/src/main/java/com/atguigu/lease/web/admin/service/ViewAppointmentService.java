@@ -1,6 +1,9 @@
 package com.atguigu.lease.web.admin.service;
 
 import com.atguigu.lease.model.entity.ViewAppointment;
+import com.atguigu.lease.web.admin.vo.appointment.AppointmentQueryVo;
+import com.atguigu.lease.web.admin.vo.appointment.AppointmentVo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -11,4 +14,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface ViewAppointmentService extends IService<ViewAppointment>
 {
 
+    IPage<AppointmentVo> pageAppointmentByQuery(IPage<AppointmentVo> page, AppointmentQueryVo queryVo);
 }

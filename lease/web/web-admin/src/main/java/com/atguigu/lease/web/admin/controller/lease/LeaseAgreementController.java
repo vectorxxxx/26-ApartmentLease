@@ -3,11 +3,15 @@ package com.atguigu.lease.web.admin.controller.lease;
 import com.atguigu.lease.common.result.Result;
 import com.atguigu.lease.model.entity.LeaseAgreement;
 import com.atguigu.lease.model.enums.LeaseStatus;
+import com.atguigu.lease.web.admin.service.LeaseAgreementService;
 import com.atguigu.lease.web.admin.vo.agreement.AgreementQueryVo;
 import com.atguigu.lease.web.admin.vo.agreement.AgreementVo;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,12 +25,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin/agreement")
 public class LeaseAgreementController
 {
+    @Autowired
+    private LeaseAgreementService service;
 
     @Operation(summary = "保存或修改租约信息")
     @PostMapping("saveOrUpdate")
     public Result saveOrUpdate(
             @RequestBody
                     LeaseAgreement leaseAgreement) {
+        service.saveOrUpdate(leaseAgreement);
         return Result.ok();
     }
 
@@ -37,7 +44,9 @@ public class LeaseAgreementController
                     long current,
             @RequestParam
                     long size, AgreementQueryVo queryVo) {
-        return Result.ok();
+        IPage<AgreementVo> page = new Page<>(current, size);
+        IPage<AgreementVo> list = service.pageAgreementByQuery(page, queryVo);
+        return Result.ok(list);
     }
 
     @Operation(summary = "根据id查询租约信息")
@@ -45,7 +54,8 @@ public class LeaseAgreementController
     public Result<AgreementVo> getById(
             @RequestParam
                     Long id) {
-        return Result.ok();
+        AgreementVo apartment = service.getAgreementById(id);
+        return Result.ok(apartment);
     }
 
     @Operation(summary = "根据id删除租约信息")
@@ -53,6 +63,7 @@ public class LeaseAgreementController
     public Result removeById(
             @RequestParam
                     Long id) {
+        service.removeById(id);
         return Result.ok();
     }
 
@@ -63,6 +74,9 @@ public class LeaseAgreementController
                     Long id,
             @RequestParam
                     LeaseStatus status) {
+        service.update(new LambdaUpdateWrapper<LeaseAgreement>()
+                .eq(LeaseAgreement::getId, id)
+                .set(LeaseAgreement::getStatus, status));
         return Result.ok();
     }
 
