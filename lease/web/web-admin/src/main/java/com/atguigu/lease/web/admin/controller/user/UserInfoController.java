@@ -3,10 +3,15 @@ package com.atguigu.lease.web.admin.controller.user;
 import com.atguigu.lease.common.result.Result;
 import com.atguigu.lease.model.entity.UserInfo;
 import com.atguigu.lease.model.enums.BaseStatus;
+import com.atguigu.lease.web.admin.service.UserInfoService;
 import com.atguigu.lease.web.admin.vo.user.UserInfoQueryVo;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin/user")
 public class UserInfoController
 {
+    @Autowired
+    private UserInfoService service;
 
     @Operation(summary = "分页查询用户信息")
     @GetMapping("page")
@@ -26,7 +33,10 @@ public class UserInfoController
                     long current,
             @RequestParam
                     long size, UserInfoQueryVo queryVo) {
-        return Result.ok();
+        IPage<UserInfo> list = service.page(new Page<>(current, size), new LambdaQueryWrapper<UserInfo>()
+                .like(queryVo.getPhone() != null, UserInfo::getPhone, queryVo.getPhone())
+                .eq(queryVo.getStatus() != null, UserInfo::getStatus, queryVo.getStatus()));
+        return Result.ok(list);
     }
 
     @Operation(summary = "根据用户id更新账号状态")
@@ -36,6 +46,9 @@ public class UserInfoController
                     Long id,
             @RequestParam
                     BaseStatus status) {
+        service.update(new LambdaUpdateWrapper<UserInfo>()
+                .eq(UserInfo::getId, id)
+                .set(UserInfo::getStatus, status));
         return Result.ok();
     }
 }
