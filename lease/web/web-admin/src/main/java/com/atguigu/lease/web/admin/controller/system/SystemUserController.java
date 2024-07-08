@@ -3,11 +3,16 @@ package com.atguigu.lease.web.admin.controller.system;
 import com.atguigu.lease.common.result.Result;
 import com.atguigu.lease.model.entity.SystemUser;
 import com.atguigu.lease.model.enums.BaseStatus;
+import com.atguigu.lease.web.admin.service.SystemUserService;
 import com.atguigu.lease.web.admin.vo.system.user.SystemUserItemVo;
 import com.atguigu.lease.web.admin.vo.system.user.SystemUserQueryVo;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin/system/user")
 public class SystemUserController
 {
+    @Autowired
+    SystemUserService service;
 
     @Operation(summary = "根据条件分页查询后台用户列表")
     @GetMapping("page")
@@ -29,7 +36,9 @@ public class SystemUserController
                     long current,
             @RequestParam
                     long size, SystemUserQueryVo queryVo) {
-        return Result.ok();
+        IPage<SystemUser> page = new Page<>(current, size);
+        IPage<SystemUserItemVo> systemUserPage = service.pageSystemUserByQuery(page, queryVo);
+        return Result.ok(systemUserPage);
     }
 
     @Operation(summary = "根据ID查询后台用户信息")
@@ -37,7 +46,8 @@ public class SystemUserController
     public Result<SystemUserItemVo> getById(
             @RequestParam
                     Long id) {
-        return Result.ok();
+        SystemUserItemVo systemUser = service.getSystemUserById(id);
+        return Result.ok(systemUser);
     }
 
     @Operation(summary = "保存或更新后台用户信息")
@@ -45,6 +55,10 @@ public class SystemUserController
     public Result saveOrUpdate(
             @RequestBody
                     SystemUser systemUser) {
+        if (systemUser.getPassword() != null) {
+            systemUser.setPassword(DigestUtils.md5Hex(systemUser.getPassword()));
+        }
+        service.saveOrUpdate(systemUser);
         return Result.ok();
     }
 
@@ -53,7 +67,8 @@ public class SystemUserController
     public Result<Boolean> isUsernameExists(
             @RequestParam
                     String username) {
-        return Result.ok();
+        final long count = service.count(new LambdaUpdateWrapper<SystemUser>().eq(SystemUser::getUsername, username));
+        return Result.ok(count == 0);
     }
 
     @DeleteMapping("deleteById")
@@ -61,6 +76,7 @@ public class SystemUserController
     public Result removeById(
             @RequestParam
                     Long id) {
+        service.removeById(id);
         return Result.ok();
     }
 
@@ -71,6 +87,9 @@ public class SystemUserController
                     Long id,
             @RequestParam
                     BaseStatus status) {
+        service.update(new LambdaUpdateWrapper<SystemUser>()
+                .eq(SystemUser::getId, id)
+                .set(SystemUser::getStatus, status));
         return Result.ok();
     }
 }

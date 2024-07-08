@@ -3,9 +3,13 @@ package com.atguigu.lease.web.admin.controller.system;
 import com.atguigu.lease.common.result.Result;
 import com.atguigu.lease.model.entity.SystemPost;
 import com.atguigu.lease.model.enums.BaseStatus;
+import com.atguigu.lease.web.admin.service.SystemPostService;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +25,8 @@ import java.util.List;
 @RequestMapping("/admin/system/post")
 public class SystemPostController
 {
+    @Autowired
+    private SystemPostService service;
 
     @Operation(summary = "分页获取岗位信息")
     @GetMapping("page")
@@ -29,7 +35,9 @@ public class SystemPostController
                     long current,
             @RequestParam
                     long size) {
-        return Result.ok();
+        IPage<SystemPost> page = new Page<>(current, size);
+        IPage<SystemPost> systemPostPage = service.page(page);
+        return Result.ok(systemPostPage);
     }
 
     @Operation(summary = "保存或更新岗位信息")
@@ -37,6 +45,7 @@ public class SystemPostController
     public Result saveOrUpdate(
             @RequestBody
                     SystemPost systemPost) {
+        service.saveOrUpdate(systemPost);
         return Result.ok();
     }
 
@@ -45,7 +54,7 @@ public class SystemPostController
     public Result removeById(
             @RequestParam
                     Long id) {
-
+        service.removeById(id);
         return Result.ok();
     }
 
@@ -54,13 +63,15 @@ public class SystemPostController
     public Result<SystemPost> getById(
             @RequestParam
                     Long id) {
-        return Result.ok();
+        SystemPost systemPost = service.getById(id);
+        return Result.ok(systemPost);
     }
 
     @Operation(summary = "获取全部岗位列表")
     @GetMapping("list")
     public Result<List<SystemPost>> list() {
-        return Result.ok();
+        List<SystemPost> list = service.list();
+        return Result.ok(list);
     }
 
     @Operation(summary = "根据岗位id修改状态")
@@ -70,6 +81,9 @@ public class SystemPostController
                     Long id,
             @RequestParam
                     BaseStatus status) {
+        service.update(new LambdaUpdateWrapper<SystemPost>()
+                .eq(SystemPost::getId, id)
+                .set(SystemPost::getStatus, status));
         return Result.ok();
     }
 }
