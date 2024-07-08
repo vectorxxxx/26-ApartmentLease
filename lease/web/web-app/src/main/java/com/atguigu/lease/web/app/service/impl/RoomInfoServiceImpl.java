@@ -1,5 +1,6 @@
 package com.atguigu.lease.web.app.service.impl;
 
+import com.atguigu.lease.common.login.LoginUserHolder;
 import com.atguigu.lease.model.entity.FacilityInfo;
 import com.atguigu.lease.model.entity.LabelInfo;
 import com.atguigu.lease.model.entity.LeaseTerm;
@@ -15,6 +16,7 @@ import com.atguigu.lease.web.app.mapper.LeaseTermMapper;
 import com.atguigu.lease.web.app.mapper.PaymentTypeMapper;
 import com.atguigu.lease.web.app.mapper.RoomInfoMapper;
 import com.atguigu.lease.web.app.service.ApartmentInfoService;
+import com.atguigu.lease.web.app.service.BrowsingHistoryService;
 import com.atguigu.lease.web.app.service.RoomInfoService;
 import com.atguigu.lease.web.app.vo.apartment.ApartmentItemVo;
 import com.atguigu.lease.web.app.vo.attr.AttrValueVo;
@@ -66,6 +68,8 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
     private FeeValueMapper feeValueMapper;
     @Autowired
     private ApartmentInfoService apartmentInfoService;
+    @Autowired
+    private BrowsingHistoryService browsingHistoryService;
 
     @Override
     public RoomDetailVo getDetailById(Long id) {
@@ -102,6 +106,11 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
         roomDetailVo.setPaymentTypeList(paymentTypeList);
         roomDetailVo.setFeeValueVoList(feeValueVoList);
         roomDetailVo.setLeaseTermList(leaseTermList);
+
+        // 浏览房间详情时保存浏览历史
+        browsingHistoryService.saveHistory(LoginUserHolder
+                .getLoginUser()
+                .getUserId(), id);
 
         return roomDetailVo;
     }
