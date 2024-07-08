@@ -4,11 +4,13 @@ import com.atguigu.lease.model.enums.BaseStatus;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Data;
 
 @Schema(description = "用户信息表")
 @TableName(value = "user_info")
 @Data
+@Builder
 public class UserInfo extends BaseEntity
 {
 
