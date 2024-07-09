@@ -2,6 +2,7 @@ package com.atguigu.lease.web.admin.mapper;
 
 import com.atguigu.lease.model.entity.PaymentType;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -14,7 +15,9 @@ import java.util.List;
 public interface PaymentTypeMapper extends BaseMapper<PaymentType>
 {
 
-    List<PaymentType> selectListByRoomId(Long id);
+    List<PaymentType> selectListByRoomId(
+            @Param("id")
+                    Long id);
 }
 
 

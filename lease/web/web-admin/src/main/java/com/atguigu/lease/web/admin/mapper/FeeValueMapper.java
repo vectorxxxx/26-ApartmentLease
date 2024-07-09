@@ -3,6 +3,7 @@ package com.atguigu.lease.web.admin.mapper;
 import com.atguigu.lease.model.entity.FeeValue;
 import com.atguigu.lease.web.admin.vo.fee.FeeValueVo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -15,7 +16,9 @@ import java.util.List;
 public interface FeeValueMapper extends BaseMapper<FeeValue>
 {
 
-    List<FeeValueVo> selectListByApartmentId(Long id);
+    List<FeeValueVo> selectListByApartmentId(
+            @Param("id")
+                    Long id);
 }
 
 

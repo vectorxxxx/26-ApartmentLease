@@ -22,23 +22,31 @@ vi /etc/ssh/sshd_config
 # PermitRootLogin no
 service sshd restart
 
-# 与网络时间保持同步
-yum install chrony
-# 开机自启
-systemctl start chronyd
-systemctl enable chronyd
-# 查看时间源
-chronyc sources
-
-# 关闭防火墙
-systemctl stop firewalld
-# 禁止防火墙开机自启
-systemctl disable firewalld
-
-# 关闭SElinux
-vi /etc/selinux/config
-SELINUX=disabled
-reboot
+# 同步时间
+# 查看当前系统的本地时间
+date
+# 查看硬件时钟（RTC），即BIOS中的实时时钟
+hwclock
+# 查看系统时间、硬件时钟设置，以及时区等信息
+timedatectl
+# 设置时区为 Asia/Shanghai
+timedatectl set-timezone Asia/Shanghai
+# 使用本地时间来存储硬件时钟的值，而不是UTC时间
+timedatectl set-local-rtc 1
+# 安装和配置 ntpdate 服务
+yum install -y ntpdate
+systemctl enable ntpdate
+systemctl is-enabled ntpdate
+systemctl status ntpdate
+systemctl start ntpdate
+# 手动同步时间
+ntpdate pool.ntp.org
+# 自动同步时间
+crontab -e
+# 每10分钟同步一次
+*/10 * * * *  /usr/sbin/ntpdate -u pool.ntp.org >/dev/null 2>&1
+# 重启服务
+service crond restart
 ```
 
 ### 1.2、安装 MySQL
@@ -172,3 +180,192 @@ MinIO服务器默认监听9000端口，用于提供HTTP访问。通过该端口�
 
 而9001端口是MinIO服务器的默认管理端口，用于提供MinIO的Web管理界面。通过该端口，可以访问MinIO的管理控制台，并进行存储桶的创建、权限管理、监控等操作。
 
+
+### 1.5、安装 Nginx
+
+server02 服务器
+
+```bash
+vi /etc/yum.repos.d/nginx.repo
+[nginx-stable]
+name=nginx stable repo
+baseurl=http://nginx.org/packages/centos/$releasever/$basearch/
+gpgcheck=1
+enabled=1
+gpgkey=https://nginx.org/keys/nginx_signing.key
+module_hotfixes=true
+
+[nginx-mainline]
+name=nginx mainline repo
+baseurl=http://nginx.org/packages/mainline/centos/$releasever/$basearch/
+gpgcheck=1
+enabled=0
+gpgkey=https://nginx.org/keys/nginx_signing.key
+module_hotfixes=true
+
+# 在线安装Nginx
+yum -y install nginx
+systemctl start nginx
+systemctl status nginx
+systemctl enable nginx
+systemctl is-enabled nginx
+```
+静态资源服务器案例
+
+```bash
+# 解压静态资源
+yum install -y unzip
+unzip hello-nginx.zip -d /usr/share/nginx/html
+
+# 配置nginx
+vi /etc/nginx/conf.d/hello-nginx.conf
+server {
+    listen       8080;
+    server_name  192.168.56.226;
+
+    location /hello-nginx {
+        root   /usr/share/nginx/html;
+        index  index.html;
+    }
+}
+
+# 重新加载nginx配置
+systemctl reload nginx
+
+# 访问地址
+http://192.168.56.226:8080/hello-nginx
+```
+
+访问地址: [http://192.168.56.226:8080/hello-nginx](http://192.168.56.226:8080/hello-nginx)
+
+
+反向代理案例
+
+```bash
+vi /etc/nginx/conf.d/hello-proxy.conf
+server {
+    listen       9090;
+    server_name  192.168.56.226;
+
+    location / {
+        proxy_pass http://www.atguigu.com;
+    }
+}
+
+# 重新加载nginx配置
+systemctl reload nginx
+```
+
+访问地址: [http://192.168.56.226:9090](http://192.168.56.226:9090)
+
+
+### 1.6、安装 JDK
+
+server01 服务器
+
+```bash
+yum install -y wget
+wget https://download.oracle.com/java/17/archive/jdk-17.0.8_linux-x64_bin.tar.gz
+tar -zxvf jdk-17.0.8_linux-x64_bin.tar.gz -C /opt
+
+# 验证
+/opt/jdk-17.0.8/bin/java -version
+```
+
+### 1.7、集成 Systemd
+
+server02 服务器
+
+使用Systemd管理后端服务进程，方便项目的启停
+
+```bash
+# 移动端集成Systemd
+vi /etc/systemd/system/lease-app.service
+[Unit]
+Description=lease-app
+After=syslog.target
+
+[Service]
+User=root
+ExecStart=/opt/jdk-17.0.8/bin/java -jar /opt/lease/web-app-1.0-SNAPSHOT.jar 1>/opt/lease/
+
+2>&1
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target
+
+# 后台管理系统集成Systemd
+vi /etc/systemd/system/lease-admin.service
+[Unit]
+Description=lease-admin
+After=syslog.target
+
+[Service]
+User=root
+ExecStart=/opt/jdk-17.0.8/bin/java -jar /opt/lease/web-admin-1.0-SNAPSHOT.jar 1>/opt/lease/admin.log 2>&1
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target
+
+# 启动两个后端项目
+systemctl start lease-app
+systemctl enable lease-app
+systemctl start lease-admin
+systemctl enable lease-admin
+```
+
+### 1.8、部署前端项目
+
+server02 服务器
+
+#### 1.8.1、移动端
+
+```bash
+yum install -y vim
+vim /etc/nginx/conf.d/app.conf
+server {
+    listen       80;
+    server_name  lease.atguigu.com;
+    
+    # 静态资源
+    location / {
+        root   /usr/share/nginx/html/app;
+        index  index.html;
+    }
+    
+    # 接口地址
+    location /app {
+        proxy_pass http://192.168.56.126:8081;
+    }
+}
+
+# 重新加载nginx配置
+systemctl reload nginx
+```
+
+访问地址：[http://lease.atguigu.com](http://lease.atguigu.com)
+
+#### 1.8.2、后台管理系统
+
+```bash
+vim /etc/nginx/conf.d/admin.conf
+server {
+    listen       80;
+    server_name  admin.lease.atguigu.com;
+    
+    location / {
+        root   /usr/share/nginx/html/admin;
+        index  index.html;
+    }
+    location /admin {
+        proxy_pass http://192.168.56.126:8080;
+    }
+}
+
+# 重新加载nginx配置
+systemctl reload nginx
+```
+
+访问地址：[http://admin.lease.atguigu.com](http://admin.lease.atguigu.com)

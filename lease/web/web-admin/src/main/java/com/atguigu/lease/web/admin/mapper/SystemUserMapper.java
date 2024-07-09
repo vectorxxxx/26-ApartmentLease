@@ -5,6 +5,7 @@ import com.atguigu.lease.web.admin.vo.system.user.SystemUserItemVo;
 import com.atguigu.lease.web.admin.vo.system.user.SystemUserQueryVo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * @author liubo
@@ -15,9 +16,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 public interface SystemUserMapper extends BaseMapper<SystemUser>
 {
 
-    IPage<SystemUserItemVo> pageSystemUserByQuery(IPage<SystemUser> page, SystemUserQueryVo queryVo);
+    IPage<SystemUserItemVo> pageSystemUserByQuery(IPage<SystemUser> page,
+                                                  @Param("queryVo")
+                                                          SystemUserQueryVo queryVo);
 
-    SystemUser selectOneByUsername(String username);
+    SystemUser selectOneByUsername(
+            @Param("username")
+                    String username);
 }
 
 

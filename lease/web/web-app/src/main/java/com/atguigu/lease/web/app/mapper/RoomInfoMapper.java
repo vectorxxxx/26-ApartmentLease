@@ -6,6 +6,7 @@ import com.atguigu.lease.web.app.vo.room.RoomQueryVo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
 
@@ -18,9 +19,15 @@ import java.math.BigDecimal;
 public interface RoomInfoMapper extends BaseMapper<RoomInfo>
 {
 
-    IPage<RoomItemVo> pageRoomItemByQuery(Page<RoomItemVo> page, RoomQueryVo queryVo);
+    IPage<RoomItemVo> pageRoomItemByQuery(Page<RoomItemVo> page,
+                                          @Param("queryVo")
+                                                  RoomQueryVo queryVo);
 
-    BigDecimal selectMinRentByApartmentId(Long id);
+    BigDecimal selectMinRentByApartmentId(
+            @Param("id")
+                    Long id);
 
-    IPage<RoomItemVo> pageItemByApartmentId(IPage<RoomItemVo> page, Long id);
+    IPage<RoomItemVo> pageItemByApartmentId(IPage<RoomItemVo> page,
+                                            @Param("id")
+                                                    Long id);
 }

@@ -2,6 +2,7 @@ package com.atguigu.lease.web.admin.mapper;
 
 import com.atguigu.lease.model.entity.FacilityInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -14,9 +15,13 @@ import java.util.List;
 public interface FacilityInfoMapper extends BaseMapper<FacilityInfo>
 {
 
-    List<FacilityInfo> selectListByApartmentId(Long id);
+    List<FacilityInfo> selectListByApartmentId(
+            @Param("id")
+                    Long id);
 
-    List<FacilityInfo> selectListByRoomId(Long id);
+    List<FacilityInfo> selectListByRoomId(
+            @Param("id")
+                    Long id);
 }
 
 

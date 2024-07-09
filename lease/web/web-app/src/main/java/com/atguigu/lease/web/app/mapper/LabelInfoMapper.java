@@ -2,6 +2,7 @@ package com.atguigu.lease.web.app.mapper;
 
 import com.atguigu.lease.model.entity.LabelInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -14,9 +15,13 @@ import java.util.List;
 public interface LabelInfoMapper extends BaseMapper<LabelInfo>
 {
 
-    List<LabelInfo> selectListByRoomId(Long id);
+    List<LabelInfo> selectListByRoomId(
+            @Param("id")
+                    Long id);
 
-    List<LabelInfo> selectListByApartmentId(Long id);
+    List<LabelInfo> selectListByApartmentId(
+            @Param("id")
+                    Long id);
 }
 
 

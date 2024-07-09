@@ -3,6 +3,7 @@ package com.atguigu.lease.web.admin.mapper;
 import com.atguigu.lease.model.entity.AttrValue;
 import com.atguigu.lease.web.admin.vo.attr.AttrValueVo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -15,7 +16,9 @@ import java.util.List;
 public interface AttrValueMapper extends BaseMapper<AttrValue>
 {
 
-    List<AttrValueVo> selectListByRoomId(Long id);
+    List<AttrValueVo> selectListByRoomId(
+            @Param("id")
+                    Long id);
 }
 
 

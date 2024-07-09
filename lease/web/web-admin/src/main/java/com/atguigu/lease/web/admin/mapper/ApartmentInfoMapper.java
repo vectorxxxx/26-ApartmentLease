@@ -5,6 +5,7 @@ import com.atguigu.lease.web.admin.vo.apartment.ApartmentItemVo;
 import com.atguigu.lease.web.admin.vo.apartment.ApartmentQueryVo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * @author liubo
@@ -15,7 +16,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 public interface ApartmentInfoMapper extends BaseMapper<ApartmentInfo>
 {
 
-    IPage<ApartmentItemVo> pageApartmentItemByQuery(IPage<ApartmentItemVo> page, ApartmentQueryVo queryVo);
+    IPage<ApartmentItemVo> pageApartmentItemByQuery(IPage<ApartmentItemVo> page,
+                                                    @Param("queryVo")
+                                                            ApartmentQueryVo queryVo);
 }
 
 

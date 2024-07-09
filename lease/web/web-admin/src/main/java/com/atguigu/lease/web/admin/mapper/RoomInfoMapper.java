@@ -5,6 +5,7 @@ import com.atguigu.lease.web.admin.vo.room.RoomItemVo;
 import com.atguigu.lease.web.admin.vo.room.RoomQueryVo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * @author liubo
@@ -15,7 +16,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 public interface RoomInfoMapper extends BaseMapper<RoomInfo>
 {
 
-    IPage<RoomItemVo> pageRoomItemByQuery(IPage<RoomItemVo> page, RoomQueryVo queryVo);
+    IPage<RoomItemVo> pageRoomItemByQuery(IPage<RoomItemVo> page,
+                                          @Param("queryVo")
+                                                  RoomQueryVo queryVo);
 }
 
 
