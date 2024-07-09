@@ -369,3 +369,116 @@ systemctl reload nginx
 ```
 
 访问地址：[http://admin.lease.atguigu.com](http://admin.lease.atguigu.com)
+
+
+
+## 2、知识点汇总
+
+- feat: 公寓信息管理
+
+  1、统一异常处理：@ControllerAdvice、@ExceptionHandler
+  2、配置文件类：@ConfigurationProperties、@EnableConfigurationProperties
+  3、MP自动填充：MetaObjectHandler#strictInsertFill
+  4、构造器：@Builder、.builder().build()
+  5、Knife4j(OpenApi3): @Tag、@Operation、@Schema
+  6、LambdaUpdateWrapper#set
+
+- feat: 租赁管理
+
+  1、日期格式与时区：@JsonFormat、date-format、time-zone
+  2、定时任务：@EnableScheduling、@Scheduled
+
+- feat: 用户管理
+
+  1、@TableField#select=false
+
+- feat: 系统管理
+
+  1、加密：DigestUtils.md5Hex（commons-codec）
+  2、MP更新策略：updateStrategy#IGNORED、NOT_NULL、NOT_EMPTY、DEFAULT、NEVER
+
+- feat: 登录管理
+
+  1、验证码：SpecCaptcha(easy-captcha)
+  2、spring-boot-starter-data-redis已经完成了StringRedisTemplate的自动配置（RedisAutoConfiguration），直接注入使用
+  3、MP手写SQL时，需要带上is_deleted逻辑删除字段
+  4、链式调用：@Builder
+  5、线程局部变量：ThreadLocal配合HandlerInterceptor进行全局统一拦截处理
+  6、多绘制流程图，理清功能逻辑，辅助思考过程，固化思考结果
+
+- build: 移动端后端开发-项目初始化配置
+
+  1、Knife4j: OpenAPI、GroupedOpenApi
+  2、@ConditionalOnProperty：配置项存在时，才会加载，避免报错
+  3、default-flat-param-object：json做打平处理，方便使用Knife4j调试
+
+- feat: 移动端后端开发-登录管理、找房
+
+  1、@ConfigurationProperties：配置文件
+  2、@EnableConfigurationProperties：开启配置文件
+  3、@ConditionalOnProperty：属性条件
+  4、阿里云发送短信请求：SendSmsRequest、client.sendSms
+
+- feat: 移动端后端开发-个人中心
+
+  1、异步功能：@EnableAsync、@Async
+
+- build: 项目部署
+
+解决编译运行报错问题
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.1</version>
+            <!-- 解决报错问题： -source 8 中不支持 文本块 -->
+            <configuration>
+                <source>17</source>
+                <target>17</target>
+            </configuration>
+        </plugin>
+    </plugins>
+    <!--编译打包过虑配置-->
+    <resources>
+        <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </resource>
+        <resource>
+            <directory>src/main/java</directory>
+            <includes>
+                <include>**/*.xml</include>
+            </includes>
+        </resource>
+    </resources>
+</build>
+```
+
+解决打包问题
+
+```xml
+<!-- Spring Boot Maven插件，用于打包可执行的JAR文件 -->
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <!-- 解决打包不可单独运行的问题 -->
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>repackage</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+```
+
